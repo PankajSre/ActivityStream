@@ -9,5 +9,5 @@ public interface CircleDAO {
 	boolean addCircle(Circle circle);
 	boolean addUserToCircle(String emailId,String circleName);
 	List<Circle> getAllCircles();
-	List<Circle> getCircleByUser(String createdBy);
+	List<Circle> getCircleByUser(String emailId);
 }

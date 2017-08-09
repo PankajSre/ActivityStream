@@ -12,7 +12,7 @@ public interface UserCircleDAO {
 	boolean addCircle(UserCircle circle);
 	boolean addUserToCircle(String emailId,String circleName);
 	boolean deleteUserFromCircle(String emailId,String circleName);
-	boolean deleteCircle(UserCircle circle,String emailId);
+	boolean deleteCircle(UserCircle circle);
 	List<Circle> getAllCircles();
 	List<UserCircle> getCircleByUser(String createdBy);
 	List<String> getUserByCircle(String circleName);

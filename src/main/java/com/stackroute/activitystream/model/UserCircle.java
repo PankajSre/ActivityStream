@@ -19,7 +19,7 @@ public class UserCircle extends StatusCode implements Serializable{
 	
 	@Id
 	private String circleName;
-	private String createdBy;
+	private String ownerEmailId;
 	private boolean status;
 	@JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
 	private Date creationDate=new Date();
@@ -34,13 +34,13 @@ public class UserCircle extends StatusCode implements Serializable{
 	public void setCircleName(String circleName) {
 		this.circleName = circleName;
 	}
-
-	public String getCreatedBy() {
-		return createdBy;
+	
+	public String getOwnerEmailId() {
+		return ownerEmailId;
 	}
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
+	public void setOwnerEmailId(String ownerEmailId) {
+		this.ownerEmailId = ownerEmailId;
 	}
 
 	public boolean isStatus() {

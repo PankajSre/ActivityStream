@@ -21,13 +21,22 @@ import com.stackroute.activitystream.model.UserCircle;
 public class CircleRestController {
 
 	@Autowired
-	CircleDAO circleDAO;
+	private CircleDAO circleDAO;
+	@Autowired
+	private Circle circle;
 	
 	
-	@GetMapping("/getAllCircles")
+	@GetMapping("/get-all-circles")
 	public List<Circle> getAllCircles()
 	{
 		List<Circle> allCircles=circleDAO.getAllCircles();
+		if(allCircles.size()>0)
+		{
+		   circle.setErrorCode("200");
+		   circle.setErrorMessage("Circles are Retrieved Successfully");
+		}
+		circle.setErrorCode("404");
+		circle.setErrorMessage("There are no Circles Available");
 		
 		return allCircles;
 	}

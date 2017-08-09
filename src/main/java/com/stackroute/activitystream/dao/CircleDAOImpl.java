@@ -31,7 +31,7 @@ public class CircleDAOImpl implements CircleDAO {
 	public boolean addUserToCircle(String emailId, String circleName) {
 		try {
 			Circle circle = new Circle();
-			circle.setCreatedBy(emailId);
+			circle.setOwnerEmailId(emailId);
 			circle.setCircleName(circleName);
 			sessionFactory.getCurrentSession().save(circle);
 			return true;
@@ -49,8 +49,8 @@ public class CircleDAOImpl implements CircleDAO {
 	}
 
 	@Override
-	public List<Circle> getCircleByUser(String createdBy) {
-		String sql="from Circle where createdBy='"+createdBy+"'";
+	public List<Circle> getCircleByUser(String userEmail) {
+		String sql="from Circle where ownerEmailId='"+userEmail+"'";
 		return sessionFactory.getCurrentSession().createQuery(sql).list();
 	}
 
