@@ -1,1 +1,1 @@
-# ActivityStream
+# ActivityStreamUser Service
