@@ -1,1 +1,1 @@
-# ActivityStream
+# ActivityStreamMessageService
