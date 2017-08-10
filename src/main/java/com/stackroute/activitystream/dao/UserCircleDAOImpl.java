@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.stackroute.activitystream.model.Circle;
 import com.stackroute.activitystream.model.UserCircle;
 
+//move unwanted methods.
+
 @Repository(value = "userCircleDAO")
 @Transactional
 public class UserCircleDAOImpl implements UserCircleDAO {
