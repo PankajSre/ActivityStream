@@ -29,6 +29,8 @@ public class UserCircleRestController {
 	@Autowired
 	private Circle circle;
 
+	//Why to create Circle in this controller?  Circle CRUD operations should be in Circle Controller only
+	//In this "UserCircleRestController" you can subsribe/unsubscribe to circle.
 	@PostMapping(value = "/createCircle", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserCircle> createCircle(@RequestBody UserCircle userCircle) {
 
@@ -46,10 +48,14 @@ public class UserCircleRestController {
 		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 	}
 
+	//Better to change the method name getCircleByName as you are getting Circle by name not id.
 	@GetMapping(value = "/circle-by-name/{circleName}")
 	public ResponseEntity<UserCircle> getCircleById(@PathVariable("circleName") String circleName) {
+		//What if multiple users return by this method?
+		//In the UserCircle table we may have multiple records for single circle
 		UserCircle userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircle == null) {
+			//try to avoid creating object using 'new' operator.  Should use Autowire
 			userCircle = new UserCircle();
 			userCircle.setErrorCode("404");
 			userCircle.setErrorMessage("Circle does not exist");
@@ -61,7 +67,13 @@ public class UserCircleRestController {
 
 	@PostMapping("/add-user-to-circle/{circleName}")
 	public UserCircle addUserToCircle(@RequestBody String emailId, @PathVariable("circleName") String circleName) {
+		//What if multiple users return by this method?
+		//In the UserCircle table we may have multiple records for single circle
 		UserCircle userCircle = userCircleDAO.getCircleByName(circleName);
+		
+		//Where are you adding emailId to userCircle? 
+		//At the time of subscribing, a new record should be created in the UserCircle Table with emailId, circleName
+		//and other default values like date of joining.  Where are you adding these?
 		if (userCircleDAO.addCircle(userCircle) == true) {
 			userCircle.setErrorCode("200");
 			userCircle.setErrorMessage("User " + emailId + " is added Successfully to the Circle " + circleName);
@@ -72,8 +84,13 @@ public class UserCircleRestController {
 		return userCircle;
 	}
 
+	//Use meaningful method name as you are not deleting by id  :  If it is related to unsubscribe, can keep unSubScribeFromCircle
+	//url params says deactivate, but method name deleteCircleById.
 	@PutMapping(value = "/deactivate-circle/{circleName}")
 	public ResponseEntity<UserCircle> deleteCircleById(@PathVariable("circleName") String circleName) {
+	//Note: It seems logic is not proper. 
+		//How can we unsubcribe by sending only circle name?  Need to send email id also.
+		
 		UserCircle userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircle == null) {
 			userCircle = new UserCircle();
@@ -81,6 +98,7 @@ public class UserCircleRestController {
 			userCircle.setErrorMessage("Circle does not exist");
 			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 		}
+		//use updateCircle as you are not deleting in the corresponding DAO.
 		userCircleDAO.deleteCircle(userCircle);
 		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 	}
