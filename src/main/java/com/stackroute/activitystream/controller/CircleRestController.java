@@ -32,9 +32,12 @@ public class CircleRestController {
 		List<Circle> allCircles=circleDAO.getAllCircles();
 		if(allCircles.size()>0)
 		{
+	           //Change errorCode to statusCode.
 		   circle.setErrorCode("200");
+		  //Change errorMessage to statusMessage
 		   circle.setErrorMessage("Circles are Retrieved Successfully");
 		}
+		//always you will get 404 as there is no 'else' OR return statement in 'if' condition. pl check
 		circle.setErrorCode("404");
 		circle.setErrorMessage("There are no Circles Available");
 		
