@@ -30,11 +30,11 @@ public class UserCircleRestController {
 
 		
 		if (userCircleDAO.addCircle(userCircle) == true) {
-			userCircle.setErrorCode("200");
-			userCircle.setErrorMessage("you have Successfully created the Circle ");
+			userCircle.setStatusCode("200");
+			userCircle.setStatusMessage("you have Successfully created the Circle ");
 		} else {
-			userCircle.setErrorCode("404");
-			userCircle.setErrorMessage("Your Circle has not been created");
+			userCircle.setStatusCode("404");
+			userCircle.setStatusMessage("Your Circle has not been created");
 		}
 		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 	}
@@ -44,8 +44,8 @@ public class UserCircleRestController {
 	    userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircle == null) {
 			userCircle = new UserCircle();
-			userCircle.setErrorCode("404");
-			userCircle.setErrorMessage("Circle does not exist");
+			userCircle.setStatusCode("404");
+			userCircle.setStatusMessage("Circle does not exist");
 			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 		}
 
@@ -56,11 +56,11 @@ public class UserCircleRestController {
 	public UserCircle addUserToCircle(@RequestBody String emailId, @PathVariable("circleName") String circleName) {
 	    userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircleDAO.addCircle(userCircle) == true) {
-			userCircle.setErrorCode("200");
-			userCircle.setErrorMessage("User " + emailId + " is added Successfully to the Circle " + circleName);
+			userCircle.setStatusCode("200");
+			userCircle.setStatusMessage("User " + emailId + " is added Successfully to the Circle " + circleName);
 		} else {
-			userCircle.setErrorCode("404");
-			userCircle.setErrorMessage("The Circle " + circleName + "does not Exists");
+			userCircle.setStatusCode("404");
+			userCircle.setStatusMessage("The Circle " + circleName + "does not Exists");
 		}
 		return userCircle;
 	}
@@ -70,8 +70,8 @@ public class UserCircleRestController {
 	    userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircle == null) {
 			userCircle = new UserCircle();
-			userCircle.setErrorCode("404");
-			userCircle.setErrorMessage("Circle does not exist");
+			userCircle.setStatusCode("404");
+			userCircle.setStatusMessage("Circle does not exist");
 			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 		}
 		userCircleDAO.deleteCircle(userCircle);
