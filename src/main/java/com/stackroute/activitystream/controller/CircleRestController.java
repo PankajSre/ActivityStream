@@ -8,14 +8,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stackroute.activitystream.dao.CircleDAO;
 import com.stackroute.activitystream.model.Circle;
-import com.stackroute.activitystream.model.UserCircle;
+
 @RestController
 @RequestMapping("/api/circles")
 public class CircleRestController {
@@ -25,23 +26,62 @@ public class CircleRestController {
 	@Autowired
 	private Circle circle;
 	
+	@PostMapping(value = "/create-circle", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Circle> createCircle(@RequestBody Circle circles) {
+
+		if (circleDAO.addCircle(circle) == true) {
+			circle.setStatusCode("200");
+			circle.setStatusMessage("you have Successfully created the Circle ");
+		} else {
+			circle.setStatusCode("404");
+			circle.setStatusMessage("Your Circle has not been created");
+		}
+		return new ResponseEntity<Circle>(circle, HttpStatus.OK);
+	}
 	
 	@GetMapping("/get-all-circles")
-	public List<Circle> getAllCircles()
+	public List<?> getAllCircles()
 	{
 		List<Circle> allCircles=circleDAO.getAllCircles();
 		if(allCircles.size()>0)
 		{
-	           //Change errorCode to statusCode.
-		   circle.setErrorCode("200");
-		  //Change errorMessage to statusMessage
-		   circle.setErrorMessage("Circles are Retrieved Successfully");
+		   circle.setStatusCode("200");
+		   circle.setStatusMessage("Circles are Retrieved Successfully");
+		   return allCircles;
 		}
-		//always you will get 404 as there is no 'else' OR return statement in 'if' condition. pl check
-		circle.setErrorCode("404");
-		circle.setErrorMessage("There are no Circles Available");
+		else
+		{
+		circle.setStatusCode("404");
+		circle.setStatusMessage("There are no Circles Available");
+		return null;
+		}
 		
-		return allCircles;
+		
 	}
 	
+	@PostMapping("/delete-circle/{circleName}")
+	public ResponseEntity<?> deleteCircle(@PathVariable("circleName") String circleName)
+	{
+		circle=circleDAO.getCircleByName(circleName);
+		if(circle ==null)
+		{
+			circle.setStatusCode("404");
+			circle.setStatusMessage("The Circle with name "+circleName+" does not Exists");
+		}
+		circleDAO.deleteCircle(circle);
+		return new ResponseEntity<Void>(HttpStatus.OK);
+	}
+	
+	@PutMapping("/update-circle/{circleName}")
+	public ResponseEntity<?> updateCircle(@PathVariable("circleName") String circleName)
+	{
+		circle=circleDAO.getCircleByName(circleName);
+		if(circle ==null)
+		{
+			circle.setStatusCode("404");
+			circle.setStatusMessage("The Circle with name "+circleName+" does not Exists");
+		}
+		circleDAO.deleteCircle(circle);
+		return new ResponseEntity<Circle>(circle,HttpStatus.OK);
+	}
 }
