@@ -48,11 +48,11 @@ public class UserMessageRestController {
 		message.setSenderEmailId(userMessage.getSenderEmailId());
 		message.setSentDate(userMessage.getSentDate());
 		if (userMessageDAO.sendMessage(userMessage) == true && messageDAO.sendMessage(message)==true) {
-			userMessage.setErrorCode("200");
-			userMessage.setErrorMessage("Your Message have been sent Successfully");
+			userMessage.setStatusCode("200");
+			userMessage.setStatusMessage("Your Message have been sent Successfully");
 		} else {
-			userMessage.setErrorCode("404");
-			userMessage.setErrorMessage("Your Circle has  been created");
+			userMessage.setStatusCode("404");
+			userMessage.setStatusMessage("Your Circle has  been created");
 		}
 		return new ResponseEntity<UserMessage>(userMessage, HttpStatus.OK);
 	}
@@ -62,8 +62,8 @@ public class UserMessageRestController {
 		UserMessage userMessage=userMessageDAO.getMessageByMessageId(messageId);
 		if (userMessage == null) {
 			userMessage = new UserMessage();
-			userMessage.setErrorCode("404");
-			userMessage.setErrorMessage("Circle does not exist");
+			userMessage.setStatusCode("404");
+			userMessage.setStatusMessage("Circle does not exist");
 			return new ResponseEntity<UserMessage>(userMessage, HttpStatus.OK);
 		}
 		System.out.println("MessaageId :"+messageId);
