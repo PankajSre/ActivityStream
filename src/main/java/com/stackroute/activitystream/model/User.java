@@ -28,7 +28,18 @@ public class User extends StatusCode implements Serializable {
 	private String emailId;
 	private long mobileNumber;
     private boolean isActive;
-    
+    public User() {
+		// TODO Auto-generated constructor stub
+	}
+	public User(String username, String password, String emailId, long mobileNumber, boolean isActive) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.emailId = emailId;
+		this.mobileNumber = mobileNumber;
+		this.isActive = isActive;
+	}
+
 	public boolean isActive() {
 		return isActive;
 	}

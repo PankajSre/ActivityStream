@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,45 +39,27 @@ public class UserRestController {
 	public ResponseEntity<User> createUser(@RequestBody User user) {
 
 		if (userDAO.saveUser(user) == true) {
-			user.setErrorCode("200");
-			user.setErrorMessage("you are Successfully registered with " + user.getUsername());
+			user.setStatusCode("200");
+			user.setStatusMessage("you are Successfully registered with " + user.getUsername());
 		} else {
-			user.setErrorCode("404");
-			user.setErrorMessage("Youa are not registered Successfully");
+			user.setStatusCode("404");
+			user.setStatusMessage("Youa are not registered Successfully");
 		}
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public UserHomeVO loginUser(@RequestBody User user, HttpSession session) {
-		boolean userHome = userDAO.validateUser("ram@gmail.com", "ram");
-      UserHomeVO userHomeVO=new UserHomeVO();
-		  if(userHome)
-		  {
-			 userHomeVO= getAllDataForUserHome(userHomeVO,user);
-		  }
-			user.setErrorCode("200");
-			user.setErrorMessage("You have successfully logged in.");
+	public User loginUser(@RequestBody User user, HttpSession session) {
+		User loginUser=userDAO.getUserByEmailId(user.getEmailId());
+		if(userDAO.validateUser(user.getEmailId(),user.getPassword())){
+     
+			user.setStatusCode("200");
+			user.setStatusMessage("You have successfully logged in.");
 			session.setAttribute("loggedInUser", user.getEmailId());
+		}
 		
-		return userHomeVO;
+		return loginUser;
 	}
-
-	private UserHomeVO getAllDataForUserHome(UserHomeVO userHome,User user) {
-		
-		userHome.setEmailid(user.getEmailId());
-		userHome.setUsername(user.getUsername());
-		System.out.println(user.getEmailId()+"  "+user.getUsername());
-		
-		List<Message> userMessages=restTemplate.getForObject(REST_SERVICE_URI+"/message/getMyMessages", List.class);
-		List<String> messageByCircle = restTemplate.getForObject(REST_SERVICE_URI+"/message/getAllMessagesByCircleName/12", List.class);
-		List<String> userCircles=restTemplate.getForObject(REST_SERVICE_URI+"/circle/circleById/"+user.getEmailId(), List.class);
-		userHome.setAllUsers(userDAO.getAllUsers());
-		userHome.setMyCircles(userCircles);
-		return userHome;
-		
-	}
-
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public ResponseEntity<User> logout(HttpSession session) {
 		String username=(String)session.getAttribute("loggedInUser");
@@ -84,13 +67,13 @@ public class UserRestController {
 		{
 		session.invalidate();
 		session.setMaxInactiveInterval(0);
-		user.setErrorCode("200");
-		user.setErrorMessage("You have successfully logged out");
+		user.setStatusCode("200");
+		user.setStatusMessage("You have successfully logged out");
 		}
 		else
 		{
-			user.setErrorCode("405");
-			user.setErrorMessage("You are not loggedIn ...Please Login");
+			user.setStatusCode("405");
+			user.setStatusMessage("You are not loggedIn ...Please Login");
 		}
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
@@ -101,33 +84,33 @@ public class UserRestController {
 		User user = userDAO.getUserByEmailId(emailId);
 		if (user == null) {
 			user = new User();
-			user.setErrorCode("404");
-			user.setErrorMessage("User does not exist");
+			user.setStatusCode("404");
+			user.setStatusMessage("User does not exist");
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		}
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
-	@RequestMapping(value = "/deleteUserById/{username}", method = RequestMethod.POST)
+	@RequestMapping(value = "/deleteUserById", method = RequestMethod.POST)
 	public ResponseEntity<User> deleteUserById(HttpSession session) {
 		String emailId=(String) session.getAttribute("loggedInUser");
 		User user = userDAO.getUserByEmailId(emailId);
 		if (user == null) {
 			user = new User();
-			user.setErrorCode("404");
-			user.setErrorMessage("User does not exist with this username :"+emailId);
+			user.setStatusCode("404");
+			user.setStatusMessage("User does not exist with this username :"+emailId);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		}
 		userDAO.deleteUser(user);
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
-	@RequestMapping(value = "/updateUser", method = RequestMethod.POST)
+	@PostMapping(value = "/updateUser")
 	public ResponseEntity<?> updateUserById(@RequestBody User updatedUser,HttpSession session) {
 		String emailId=(String) session.getAttribute("loggedInUser");
 		User user = userDAO.getUserByEmailId(emailId);
 		if (user == null) {
 			user = new User();
-			user.setErrorCode("404");
-			user.setErrorMessage("User does not exist");
+			user.setStatusCode("404");
+			user.setStatusMessage("User does not exist");
 			return new ResponseEntity<User>(user, HttpStatus.UNAUTHORIZED);
 		}
 		userDAO.updateUser(updatedUser);
@@ -139,8 +122,8 @@ public class UserRestController {
 		
 		List<User> users = userDAO.getAllUsers();
 		if (users.isEmpty()) {
-			user.setErrorCode("404");
-			user.setErrorMessage("There is No user to show....");
+			user.setStatusCode("404");
+			user.setStatusMessage("There is No user to show....");
 			users.add(user);
 		}
 		for(User user : users)
