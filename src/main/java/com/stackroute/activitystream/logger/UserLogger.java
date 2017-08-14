@@ -31,5 +31,6 @@ public class UserLogger {
 		
 	}
 	
+	//this code is minimal. Please implement all logging through aspects.
 	
 }
