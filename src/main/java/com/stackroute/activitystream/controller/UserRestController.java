@@ -31,15 +31,18 @@ public class UserRestController {
 	@Autowired
 	private User user;
    
+	//are we using rest template?
       @Autowired
       RestTemplate restTemplate;
       public static final String REST_SERVICE_URI = "http://localhost:8888/activityStream/api";
 	
 	@RequestMapping(value = "/saveUser", method = RequestMethod.POST)
 	public ResponseEntity<User> createUser(@RequestBody User user) {
-
+		//if you are already sending HttpStatus.OK, then what is the use of status code separately?
 		if (userDAO.saveUser(user) == true) {
 			user.setStatusCode("200");
+			//you should not hard code any message, it should come from resource bundle so that 
+			//internationalization can be immplemented
 			user.setStatusMessage("you are Successfully registered with " + user.getUsername());
 		} else {
 			user.setStatusCode("404");
@@ -49,6 +52,7 @@ public class UserRestController {
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	//please enclose the return value with responseEntity so that you can send the standard HTTP status codes
 	public User loginUser(@RequestBody User user, HttpSession session) {
 		User loginUser=userDAO.getUserByEmailId(user.getEmailId());
 		if(userDAO.validateUser(user.getEmailId(),user.getPassword())){
@@ -62,6 +66,7 @@ public class UserRestController {
 	}
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public ResponseEntity<User> logout(HttpSession session) {
+		//you should not use custom status codes, use HTTP status codes instead
 		String username=(String)session.getAttribute("loggedInUser");
 		if(username !=null)
 		{
@@ -80,12 +85,14 @@ public class UserRestController {
 	
 	@RequestMapping(value = "/userById", method = RequestMethod.GET)
 	public ResponseEntity<User> getUserById(HttpSession session) {
+		//can you use AOP to implement security?
 		String emailId=(String) session.getAttribute("loggedInUser");
 		User user = userDAO.getUserByEmailId(emailId);
 		if (user == null) {
 			user = new User();
 			user.setStatusCode("404");
 			user.setStatusMessage("User does not exist");
+			//even if the user does not exist, the status is going as OK. Please refactor this.
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		}
 		return new ResponseEntity<User>(user, HttpStatus.OK);

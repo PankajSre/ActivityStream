@@ -26,6 +26,7 @@ public class User extends StatusCode implements Serializable {
 	@Id
 	@Email
 	private String emailId;
+	//no validation for mobile number?
 	private long mobileNumber;
     private boolean isActive;
     private String role="ROLE_USER";

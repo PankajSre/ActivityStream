@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 
 @SpringBootApplication(scanBasePackages={"com.stackroute.activitystream"})
+//redundant annotation
 @EntityScan(basePackages={"com.stackroute.activitystream.model"})
 public class ActivityStreamUser {
  
@@ -20,6 +21,8 @@ public class ActivityStreamUser {
 		logger.debug("User Service Application starting...");
 		SpringApplication.run(ActivityStreamUser.class, args);
 	}
+	
+	//create an app context for the beans. Main class should remain clean
 	@Bean(destroyMethod="")  
 	public SessionFactory sessionFactory(HibernateEntityManagerFactory hemf){  
 		logger.debug("Hibernate Session factory initialized");
