@@ -28,6 +28,7 @@ public class User extends StatusCode implements Serializable {
 	private String emailId;
 	private long mobileNumber;
     private boolean isActive;
+    private String role="ROLE_USER";
     public User() {
 		// TODO Auto-generated constructor stub
 	}
@@ -39,7 +40,13 @@ public class User extends StatusCode implements Serializable {
 		this.mobileNumber = mobileNumber;
 		this.isActive = isActive;
 	}
-
+   
+	public String getRole() {
+		return role;
+	}
+	public void setRole(String role) {
+		this.role = role;
+	}
 	public boolean isActive() {
 		return isActive;
 	}
