@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.stackroute.activitystream.model.User;
-import com.stackroute.activitystream.viewobject.UserHomeVO;
 
 @Transactional
 @Repository(value = "userDAO")

@@ -8,11 +8,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.context.annotation.ComponentScan;
 
 
 @SpringBootApplication(scanBasePackages={"com.stackroute.activitystream"})
-//redundant annotation
 @EntityScan(basePackages={"com.stackroute.activitystream.model"})
 public class ActivityStreamUser {
  
@@ -21,18 +20,9 @@ public class ActivityStreamUser {
 		logger.debug("User Service Application starting...");
 		SpringApplication.run(ActivityStreamUser.class, args);
 	}
-	
-	//create an app context for the beans. Main class should remain clean
 	@Bean(destroyMethod="")  
 	public SessionFactory sessionFactory(HibernateEntityManagerFactory hemf){  
 		logger.debug("Hibernate Session factory initialized");
-	    return hemf.getSessionFactory();  
-	}  
-	
-	@Bean
-	public RestTemplate restTemplate()
-	{
-		return new RestTemplate();
-	}
-	
+	    return hemf.getSessionFactory();
+	}  	
 }

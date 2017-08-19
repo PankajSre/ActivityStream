@@ -7,18 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+
 
 import com.stackroute.activitystream.dao.UserDAO;
-import com.stackroute.activitystream.model.Circle;
-import com.stackroute.activitystream.model.Message;
 import com.stackroute.activitystream.model.User;
-import com.stackroute.activitystream.viewobject.UserHomeVO;
+
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
@@ -30,113 +29,92 @@ public class UserRestController {
 	private UserDAO userDAO;
 	@Autowired
 	private User user;
-   
-	//are we using rest template?
-      @Autowired
-      RestTemplate restTemplate;
-      public static final String REST_SERVICE_URI = "http://localhost:8888/activityStream/api";
-	
+
 	@RequestMapping(value = "/saveUser", method = RequestMethod.POST)
 	public ResponseEntity<User> createUser(@RequestBody User user) {
-		//if you are already sending HttpStatus.OK, then what is the use of status code separately?
+
 		if (userDAO.saveUser(user) == true) {
-			user.setStatusCode("200");
-			//you should not hard code any message, it should come from resource bundle so that 
-			//internationalization can be immplemented
-			user.setStatusMessage("you are Successfully registered with " + user.getUsername());
+			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else {
-			user.setStatusCode("404");
-			user.setStatusMessage("Youa are not registered Successfully");
+			return new ResponseEntity<User>(user, HttpStatus.NOT_FOUND);
+		}
+		
+	}
+
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public ResponseEntity<User> loginUser(@RequestBody User user, HttpSession session) {
+		User loginUser = userDAO.getUserByEmailId(user.getEmailId());
+		if (userDAO.validateUser(user.getEmailId(), user.getPassword())) {
+			session.setAttribute("loggedInUser", user.getEmailId());
+			return new ResponseEntity<User>(loginUser, HttpStatus.OK);
+		}
+         
+		return new ResponseEntity<User>(loginUser, HttpStatus.NOT_FOUND);
+	}
+
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public ResponseEntity<User> logout(HttpSession session) {
+		String username = (String) session.getAttribute("loggedInUser");
+		if (username != null) {
+			session.invalidate();
+			session.setMaxInactiveInterval(0);
+			
+			return new ResponseEntity<User>(user, HttpStatus.OK);
+		} else {
+			
+			return new ResponseEntity<User>(user, HttpStatus.NOT_FOUND);
+		}
+
+	}
+
+	@RequestMapping(value = "/userById/{emailId}", method = RequestMethod.GET)
+	public ResponseEntity<User> getUserById(@PathVariable("emailId") String emailId) {
+		User user = userDAO.getUserByEmailId(emailId);
+		if (user == null) {
+			user = new User();
+			return new ResponseEntity<User>(user, HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	//please enclose the return value with responseEntity so that you can send the standard HTTP status codes
-	public User loginUser(@RequestBody User user, HttpSession session) {
-		User loginUser=userDAO.getUserByEmailId(user.getEmailId());
-		if(userDAO.validateUser(user.getEmailId(),user.getPassword())){
-     
-			user.setStatusCode("200");
-			user.setStatusMessage("You have successfully logged in.");
-			session.setAttribute("loggedInUser", user.getEmailId());
-		}
-		
-		return loginUser;
-	}
-	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	public ResponseEntity<User> logout(HttpSession session) {
-		//you should not use custom status codes, use HTTP status codes instead
-		String username=(String)session.getAttribute("loggedInUser");
-		if(username !=null)
-		{
-		session.invalidate();
-		session.setMaxInactiveInterval(0);
-		user.setStatusCode("200");
-		user.setStatusMessage("You have successfully logged out");
-		}
-		else
-		{
-			user.setStatusCode("405");
-			user.setStatusMessage("You are not loggedIn ...Please Login");
-		}
-		return new ResponseEntity<User>(user, HttpStatus.OK);
-	}
-	
-	@RequestMapping(value = "/userById", method = RequestMethod.GET)
-	public ResponseEntity<User> getUserById(HttpSession session) {
-		//can you use AOP to implement security?
-		String emailId=(String) session.getAttribute("loggedInUser");
-		User user = userDAO.getUserByEmailId(emailId);
-		if (user == null) {
-			user = new User();
-			user.setStatusCode("404");
-			user.setStatusMessage("User does not exist");
-			//even if the user does not exist, the status is going as OK. Please refactor this.
-			return new ResponseEntity<User>(user, HttpStatus.OK);
-		}
-		return new ResponseEntity<User>(user, HttpStatus.OK);
-	}
 	@RequestMapping(value = "/deleteUserById", method = RequestMethod.POST)
-	public ResponseEntity<User> deleteUserById(HttpSession session) {
-		String emailId=(String) session.getAttribute("loggedInUser");
-		User user = userDAO.getUserByEmailId(emailId);
+	public ResponseEntity<User> deleteUserById(@RequestBody User user) {
+		
 		if (user == null) {
 			user = new User();
-			user.setStatusCode("404");
-			user.setStatusMessage("User does not exist with this username :"+emailId);
+			return new ResponseEntity<User>(user, HttpStatus.UNAUTHORIZED);
+		} else {
+			userDAO.deleteUser(user);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		}
-		userDAO.deleteUser(user);
-		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
+
 	@PostMapping(value = "/updateUser")
-	public ResponseEntity<?> updateUserById(@RequestBody User updatedUser,HttpSession session) {
-		String emailId=(String) session.getAttribute("loggedInUser");
-		User user = userDAO.getUserByEmailId(emailId);
-		if (user == null) {
-			user = new User();
-			user.setStatusCode("404");
-			user.setStatusMessage("User does not exist");
-			return new ResponseEntity<User>(user, HttpStatus.UNAUTHORIZED);
+	public ResponseEntity<?> updateUserById(@RequestBody User updatedUser, HttpSession session) {
+		
+		if (updatedUser == null) {
+			updatedUser = new User();
+			return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
 		}
-		userDAO.updateUser(updatedUser);
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		user.setActive(updatedUser.isActive());
+		user.setMobileNumber(updatedUser.getMobileNumber());
+		user.setPassword(updatedUser.getPassword());
+		user.setUsername(updatedUser.getUsername());
+		user.setEmailId(updatedUser.getEmailId());
+		userDAO.updateUser(user);
+		return new ResponseEntity<User>(user,HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/getAllUsers", method = RequestMethod.GET)
 	public List<User> getAllUsers() {
-		
+
 		List<User> users = userDAO.getAllUsers();
 		if (users.isEmpty()) {
-			user.setStatusCode("404");
-			user.setStatusMessage("There is No user to show....");
 			users.add(user);
 		}
-		for(User user : users)
-		{
+		for (User user : users) {
 			Link selfLink = linkTo(UserRestController.class).slash(user.getEmailId()).withSelfRel();
-	        user.add(selfLink);
+			user.add(selfLink);
 		}
 		return users;
 	}

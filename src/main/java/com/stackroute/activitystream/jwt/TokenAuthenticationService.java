@@ -17,9 +17,9 @@ class TokenAuthenticationService {
   static final String TOKEN_PREFIX = "Bearer";
   static final String HEADER_STRING = "Authorization";
 
-  static void addAuthentication(HttpServletResponse res, String username) {
+  static void addAuthentication(HttpServletResponse res, String emailId) {
     String JWT = Jwts.builder()
-        .setSubject(username)
+        .setSubject(emailId)
         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATIONTIME))
         .signWith(SignatureAlgorithm.HS512, SECRET).compact();
     res.addHeader(HEADER_STRING, TOKEN_PREFIX + " " + JWT);

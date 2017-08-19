@@ -16,26 +16,30 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private DataSource dataSource;
-
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().authorizeRequests().antMatchers("/**").permitAll()
-				.antMatchers(HttpMethod.POST, "/api/user/login").permitAll().anyRequest().authenticated().and()
+		http.csrf().disable().authorizeRequests()
+		         .antMatchers("/").permitAll()
+				.antMatchers(HttpMethod.POST, "/api/user/login").permitAll()
+				.anyRequest()
+				.authenticated()
+				.and()
 				.addFilterBefore(new JWTLoginFilter("/api/user/login", authenticationManager()),
-						UsernamePasswordAuthenticationFilter.class)
+						UsernamePasswordAuthenticationFilter.class).sessionManagement().invalidSessionUrl("/api/user/logout").and()
 
 				.addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		/*auth.jdbcAuthentication().dataSource(dataSource)
+		auth.jdbcAuthentication().dataSource(dataSource)
 				.usersByUsernameQuery("select emailId , password, isActive from user where emailId=?")
-				.authoritiesByUsernameQuery("select u1.emailId , u2.roleName from user u1 , Roles u2 where u1.emailId=u2.emailId and u1.emailId=?");
-	*/
-		 auth.inMemoryAuthentication()
+				.authoritiesByUsernameQuery("select emailId , 'USER' as role from user where emailId=?");
+				/*
+		auth.inMemoryAuthentication()
 	        .withUser("admin")
 	        .password("password")
-	        .roles("ADMIN");	
+	        .roles("ADMIN");	*/
 	}
 }

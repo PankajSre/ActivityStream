@@ -8,30 +8,28 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Component
 @Entity
-public class User extends StatusCode implements Serializable {
+public class User extends ResourceSupport implements Serializable {
 
 	private static final long serialVersionUID = -3917567546587261536L;
 	
 	@NotNull
 	private String username;
 	@NotEmpty
-	@JsonIgnore
 	private String password;
 	@Id
 	@Email
 	private String emailId;
-	//no validation for mobile number?
 	private long mobileNumber;
     private boolean isActive;
-    private String role="ROLE_USER";
     public User() {
-		// TODO Auto-generated constructor stub
+	
 	}
 	public User(String username, String password, String emailId, long mobileNumber, boolean isActive) {
 		super();
@@ -42,12 +40,6 @@ public class User extends StatusCode implements Serializable {
 		this.isActive = isActive;
 	}
    
-	public String getRole() {
-		return role;
-	}
-	public void setRole(String role) {
-		this.role = role;
-	}
 	public boolean isActive() {
 		return isActive;
 	}
