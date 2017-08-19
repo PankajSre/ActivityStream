@@ -3,6 +3,7 @@ package com.stackroute.activitystream.dao;
 import java.util.List;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -47,6 +48,7 @@ public class CircleDAOImpl implements CircleDAO {
 		}
 
 	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Circle> getAllCircles() {
@@ -61,8 +63,11 @@ public class CircleDAOImpl implements CircleDAO {
 	}
 
 	@Override
-	public boolean deleteCircle(Circle circle) {
+	public boolean deleteCircle(String circleName, String ownerId) {
 		try {
+			String hql = "from Circle where circleName='" + circleName + "' and ownerEmailId='" + ownerId + "'";
+			Query query = sessionFactory.getCurrentSession().createQuery(hql);
+			circle = (Circle) query.uniqueResult();
 			sessionFactory.getCurrentSession().delete(circle);
 			return true;
 		} catch (HibernateException e) {
@@ -81,6 +86,18 @@ public class CircleDAOImpl implements CircleDAO {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isCircleExists(String circleName) {
+		String hql = "from Circle where circleName='" + circleName + "'";
+		Query query = sessionFactory.getCurrentSession().createQuery(hql);
+
+		Circle circle = (Circle) query.uniqueResult();
+		if (circle != null)
+			return true;
+		else
+			return false;
 	}
 
 }

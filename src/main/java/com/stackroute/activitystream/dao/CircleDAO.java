@@ -9,7 +9,8 @@ public interface CircleDAO {
 	boolean addCircle(Circle circle);
 	boolean addUserToCircle(String emailId,String circleName);
 	List<Circle> getAllCircles();
-	boolean deleteCircle(Circle circle);
+	boolean deleteCircle(String circleName,String ownerId);
 	boolean updateCircle(Circle circle);
 	public Circle getCircleByName(String circleName);
+	public boolean isCircleExists(String circleName);
 }

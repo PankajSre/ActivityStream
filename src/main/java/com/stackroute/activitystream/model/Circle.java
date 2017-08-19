@@ -8,13 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Component
 @Table(name="circle")
-public class Circle extends StatusCode implements Serializable{
+public class Circle extends ResourceSupport implements Serializable{
 
 	private static final long serialVersionUID = -1147732076765756355L;
 	
@@ -26,6 +27,14 @@ public class Circle extends StatusCode implements Serializable{
 	private Date creationDate=new Date();
 	
 	public Circle() {
+	}
+    
+	public Circle(String circleName, String ownerEmailId, boolean status, Date creationDate) {
+		super();
+		this.circleName = circleName;
+		this.ownerEmailId = ownerEmailId;
+		this.status = status;
+		this.creationDate = creationDate;
 	}
 
 	public String getCircleName() {
