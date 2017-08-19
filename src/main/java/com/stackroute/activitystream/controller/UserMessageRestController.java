@@ -23,62 +23,41 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 
 
 @RestController
-@RequestMapping("/api/message")
+@RequestMapping("/api/userMessage")
 public class UserMessageRestController {
 
 
 	@Autowired
 	UserMessageDAO userMessageDAO;
 	
-	@Autowired
-	MessageDAO messageDAO;
-	
-	
-	@RequestMapping(value = "/sendMessage", method = RequestMethod.POST)
-	public ResponseEntity<UserMessage> sendMessage(@RequestBody UserMessage userMessage) {
-
-		Message message=new Message();
-		message.setMessageId(userMessage.getMessageId());
-		message.setMessageText(userMessage.getMessageText());
-		message.setCircleName(userMessage.getCircleName());
-		message.setMaximumSize(userMessage.getMaximumSize());
-		message.setMessageSize(userMessage.getMessageSize());
-		message.setMessageType(userMessage.getMessageType());
-		message.setReceiverEmailId(userMessage.getReceiverEmailId());
-		message.setSenderEmailId(userMessage.getSenderEmailId());
-		message.setSentDate(userMessage.getSentDate());
-		if (userMessageDAO.sendMessage(userMessage) == true && messageDAO.sendMessage(message)==true) {
-			userMessage.setStatusCode("200");
-			userMessage.setStatusMessage("Your Message have been sent Successfully");
+	@RequestMapping(value = "/sendUserMessage", method = RequestMethod.POST)
+	public ResponseEntity<?> sendMessage(@RequestBody UserMessage userMessage) {
+		if (userMessageDAO.sendMessage(userMessage) == true) {
+			return new ResponseEntity<UserMessage>(userMessage, HttpStatus.OK);
 		} else {
-			userMessage.setStatusCode("404");
-			userMessage.setStatusMessage("Your Circle has  been created");
+			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		}
-		return new ResponseEntity<UserMessage>(userMessage, HttpStatus.OK);
+		
 	}
 	
-	@RequestMapping(value = "/messageById/{messageId}", method = RequestMethod.GET)
-	public ResponseEntity<UserMessage> getMessageById(@PathVariable("messageId") int messageId) {
+	@RequestMapping(value = "/userMessageById/{messageId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getMessageById(@PathVariable("messageId") int messageId) {
 		UserMessage userMessage=userMessageDAO.getMessageByMessageId(messageId);
 		if (userMessage == null) {
 			userMessage = new UserMessage();
-			userMessage.setStatusCode("404");
-			userMessage.setStatusMessage("Circle does not exist");
-			return new ResponseEntity<UserMessage>(userMessage, HttpStatus.OK);
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
 		}
-		System.out.println("MessaageId :"+messageId);
 		userMessage.add(linkTo(UserMessageRestController.class).slash(userMessage.getMessageId()).withSelfRel());
-		System.out.println("MessaageId :"+messageId);
 		return new ResponseEntity<UserMessage>(userMessage, HttpStatus.OK);
 	}
-	@RequestMapping(value = "/deleteMessage", method = RequestMethod.POST)
+	@RequestMapping(value = "/deleteUserMessage", method = RequestMethod.POST)
 	public ResponseEntity<?> deleteMessage(@RequestBody UserMessage userMessage) {
 		userMessageDAO.deleteMessage(userMessage.getMessageId(), userMessage.getReceiverEmailId());
 		userMessage.add(linkTo(methodOn(UserMessageRestController.class).deleteMessage(userMessage)).withSelfRel());
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 	
-	@PostMapping("/getMyMessages")
+	@PostMapping("/getUserMessages")
 	public List<UserMessage> getAllMessagesByUser(@RequestBody UserMessage userMessage) {
 		
 		List<UserMessage> userMessages= userMessageDAO.getMyMessages(userMessage.getReceiverEmailId());	
@@ -103,16 +82,5 @@ public class UserMessageRestController {
 		return messageList;
 	}
 	
-	@GetMapping(value="/getAllMessages")
-	public List<Message> getAllmessages()
-	{
-		List<Message> messages=messageDAO.getAllMessages();
-		for(Message message : messages)
-		{   Link link1= linkTo(UserMessageRestController.class).slash(message.getMessageId()).withSelfRel();
-			Link link=linkTo(UserMessageRestController.class).slash(message.getCircleName()).withSelfRel();
-			message.add(link);
-			message.add(link1);
-		}
-		return messages;
-	}
+	
 }

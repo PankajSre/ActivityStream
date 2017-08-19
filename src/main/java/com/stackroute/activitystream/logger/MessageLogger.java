@@ -1,4 +1,4 @@
-package com.stackroute.activitystream.logger;
+/*package com.stackroute.activitystream.logger;
 
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,7 +14,7 @@ public class MessageLogger {
 
 	public static final Logger logger=LoggerFactory.getLogger(MessageLogger.class);
 	
-	/*@Before("loginPointcut()")
+	@Before("loginPointcut()")
 	public void loggerBeforeLogin()
 	{
 		logger.info("Before the method call ");
@@ -29,7 +29,8 @@ public class MessageLogger {
 	public void loginPointcut()
 	{
 		
-	}*/
+	}
 	
 	
 }
+*/

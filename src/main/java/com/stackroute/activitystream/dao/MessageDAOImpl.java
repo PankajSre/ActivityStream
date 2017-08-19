@@ -32,9 +32,27 @@ public class MessageDAOImpl implements MessageDAO {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<Message> getAllMessages() {
+	public List<Message> getAllMessages(String emailId) {
 		
-		return sessionFactory.getCurrentSession().createQuery("from Message").list();
+		return sessionFactory.getCurrentSession().createQuery("from Message where receiverEmailId='"+emailId+"'").list();
+	}
+
+	@Override
+	public boolean updateMessage(Message message) {
+		try {
+			sessionFactory.getCurrentSession().update(message);
+			return true;
+		} catch (HibernateException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+	}
+
+	@Override
+	public Message getMessageById(int messageId) {
+		
+		return sessionFactory.getCurrentSession().get(Message.class, messageId);
 	}
 
 }

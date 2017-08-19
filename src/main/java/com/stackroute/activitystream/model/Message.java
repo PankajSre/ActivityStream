@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.hateoas.ResourceSupport;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,9 +16,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Entity
 @Component
 @Table(name="message")
-public class Message extends StatusCode{
+public class Message extends ResourceSupport{
 
 	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private int messageId;
 	private String messageText;
 	private String senderEmailId;
@@ -28,6 +30,23 @@ public class Message extends StatusCode{
 	private String messageType;
 	private String receiverEmailId;
 	private String circleName;
+    public Message() {
+		
+	}
+    
+	public Message(int messageId, String messageText, String senderEmailId, Date sentDate, long messageSize,
+			long maximumSize, String messageType, String receiverEmailId, String circleName) {
+		super();
+		this.messageId = messageId;
+		this.messageText = messageText;
+		this.senderEmailId = senderEmailId;
+		this.sentDate = sentDate;
+		this.messageSize = messageSize;
+		this.maximumSize = maximumSize;
+		this.messageType = messageType;
+		this.receiverEmailId = receiverEmailId;
+		this.circleName = circleName;
+	}
 
 	public int getMessageId() {
 		return messageId;
