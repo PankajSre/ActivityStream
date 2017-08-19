@@ -13,4 +13,6 @@ public interface UserCircleDAO {
 	List<UserCircle> getCircleByUser(String createdBy);
 	List<String> getUserByCircle(String circleName);
 	public UserCircle getCircleByName(String circleName);
+	boolean updateCircle(UserCircle userCircle);
+	
 }

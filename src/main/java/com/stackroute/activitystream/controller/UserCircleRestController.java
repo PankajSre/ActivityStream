@@ -1,6 +1,11 @@
 package com.stackroute.activitystream.controller;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +35,11 @@ public class UserCircleRestController {
 
 		
 		if (userCircleDAO.addCircle(userCircle) == true) {
-			userCircle.setStatusCode("200");
-			userCircle.setStatusMessage("you have Successfully created the Circle ");
+			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 		} else {
-			userCircle.setStatusCode("404");
-			userCircle.setStatusMessage("Your Circle has not been created");
+			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.UNAUTHORIZED);
 		}
-		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
+		
 	}
 
 	@GetMapping(value = "/circle-by-name/{circleName}")
@@ -44,37 +47,41 @@ public class UserCircleRestController {
 	    userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircle == null) {
 			userCircle = new UserCircle();
-			userCircle.setStatusCode("404");
-			userCircle.setStatusMessage("Circle does not exist");
-			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
+			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.NOT_FOUND);
 		}
-
 		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 	}
 
 	@PostMapping("/add-user-to-circle/{circleName}")
-	public UserCircle addUserToCircle(@RequestBody String emailId, @PathVariable("circleName") String circleName) {
+	public ResponseEntity<?> addUserToCircle(@RequestBody String emailId, @PathVariable("circleName") String circleName) {
 	    userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircleDAO.addCircle(userCircle) == true) {
-			userCircle.setStatusCode("200");
-			userCircle.setStatusMessage("User " + emailId + " is added Successfully to the Circle " + circleName);
+			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
 		} else {
-			userCircle.setStatusCode("404");
-			userCircle.setStatusMessage("The Circle " + circleName + "does not Exists");
+			return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
 		}
-		return userCircle;
+		
 	}
 
 	@PutMapping(value = "/deactivate-circle/{circleName}")
-	public ResponseEntity<UserCircle> deleteCircleById(@PathVariable("circleName") String circleName) {
+	public ResponseEntity<?> deleteCircleById(@PathVariable("circleName") String circleName) {
 	    userCircle = userCircleDAO.getCircleByName(circleName);
 		if (userCircle == null) {
 			userCircle = new UserCircle();
-			userCircle.setStatusCode("404");
-			userCircle.setStatusMessage("Circle does not exist");
-			return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
+			return new ResponseEntity<Void>(HttpStatus.UNAUTHORIZED);
 		}
 		userCircleDAO.deleteCircle(userCircle);
 		return new ResponseEntity<UserCircle>(userCircle, HttpStatus.OK);
+	}
+	@GetMapping("/getAllCircles")
+	public ResponseEntity<?> getAllCircles()
+	{
+		List<UserCircle> allCircles=userCircleDAO.getAllCircles();
+		for(UserCircle circle : allCircles)
+		{   Link link= linkTo(UserCircleRestController.class).slash(circle.getCircleName()).withSelfRel();
+			circle.add(link);
+		}
+		return new ResponseEntity<List<UserCircle>>(allCircles, HttpStatus.OK);
+		
 	}
 }

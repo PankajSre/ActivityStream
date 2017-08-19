@@ -74,9 +74,23 @@ public class UserCircleDAOImpl implements UserCircleDAO {
 	public boolean deleteCircle(UserCircle circle) {
 
 		try {
-
 			circle.setStatus(false);
 			sessionFactory.getCurrentSession().delete(circle);
+			return true;
+
+		} catch (HibernateException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+	@Override
+	public boolean updateCircle(UserCircle circle) {
+
+		try {
+			userCircle.setCircleName(circle.getCircleName());
+			userCircle.setStatus(circle.isStatus());
+			sessionFactory.getCurrentSession().update(userCircle);
 			return true;
 
 		} catch (HibernateException e) {
@@ -89,7 +103,7 @@ public class UserCircleDAOImpl implements UserCircleDAO {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserCircle> getAllCircles() {
-		String hql = "from Circle where status=true";
+		String hql = "from UserCircle where status=true";
 		return sessionFactory.getCurrentSession().createQuery(hql).list();
 	}
 
